@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -11,11 +12,30 @@ import (
 	"unicode"
 )
 
+type listFlag []string
+
+func (list listFlag) String() string {
+	return strings.Join(list, ",")
+}
+
+func (list *listFlag) Set(s string) error {
+	*list = append(*list, strings.Split(s, ",")...)
+	return nil
+}
+
 var tlds = []string{"com", "net"}
 
 const allowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_-"
 
 func main() {
+	var tldListFlag listFlag
+
+	flag.Var(&tldListFlag, "tlds", "comma-separated list of TLDs")
+	flag.Parse()
+	if len(tldListFlag) != 0 {
+		tlds = tldListFlag
+	}
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	s := bufio.NewScanner(os.Stdin)
 
